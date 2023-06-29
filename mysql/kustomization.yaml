@@ -1,0 +1,5 @@
+namePrefix: dev- # prod-
+resources:
+- mysql-storage.yaml
+- mysql-secret.yaml
+- mysql-deployment.yaml
