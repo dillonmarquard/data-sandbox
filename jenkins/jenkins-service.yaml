@@ -11,3 +11,16 @@ spec:
     - port: 8080
       targetPort: 8080
       nodePort: 32000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jenkins-agent-service
+  namespace: cicd
+spec:
+  selector:
+    app: jenkins-agent
+  type: ClusterIP
+  ports:
+    - port: 4444
+      targetPort: 22

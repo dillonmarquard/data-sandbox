@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jenkins-agent
+  namespace: cicd
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: jenkins-agent
+  template:
+    metadata:
+      labels:
+        app: jenkins-agent
+      namespace: cicd
+    spec:
+      containers:
+        - name: jenkins-agent
+          image: jenkins/ssh-agent:alpine
+          resources:
+            limits:
+              memory: "2Gi"
+              cpu: "500m"
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+          env:
+            - name: JENKINS_AGENT_SSH_PUBKEY
+              value: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJIeBdhWC1DBJ755vjUUriXji9B+v2QzwQbZh1C0Vlfa dmarq@DESKTOP-BKACFTM
+          ports:
+            - name: tcp
+              containerPort: 22

@@ -15,9 +15,9 @@ spec:
         app: jenkins
       namespace: cicd
     spec:
-      securityContext:
-        fsGroup: 1000
-        runAsUser: 1000
+      # securityContext:
+      #   fsGroup: 1000
+      #   runAsUser: 1000
       # serviceAccountName: jenkins-admin
       containers:
         - name: jenkins
@@ -36,7 +36,7 @@ spec:
             - name: CASC_JENKINS_CONFIG
               value: /var/jenkins_home/casc_configs/jenkins.yaml
             - name: HOST_IP
-              value: jenkins-service
+              value: $(jenkins-service)
             - name: AGENT_IP
               value: jenkins-agent-service
           ports:
