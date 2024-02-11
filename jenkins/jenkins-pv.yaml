@@ -1,0 +1,23 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: jenkins-pv
+  namespace: cicd
+spec:
+  capacity:
+    storage: 10Gi 
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce 
+  persistentVolumeReclaimPolicy: Recycle
+  storageClassName: local-storage
+  local:
+    path: /data/jenkins-data
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - minikube

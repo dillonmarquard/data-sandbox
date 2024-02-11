@@ -1,0 +1,209 @@
+credentials:
+  system:
+    domainCredentials:
+    - credentials:
+      - basicSSHUserPrivateKey:
+          id: "5e42fb34-f7cd-454f-90ff-e6177df3e27f"
+          privateKeySource:
+            directEntry:
+              privateKey: ${readFile:/var/jenkins_home/.ssh/jenkins-ssh}
+          scope: GLOBAL
+          username: "jenkins"
+      - usernamePassword:
+          description: "github personal access token"
+          id: "76eca70f-41e5-4f04-900c-8482a11f5a56"
+          password: ${readFile:/var/jenkins_home/.ssh/github-personal-token}
+          scope: GLOBAL
+          username: "dmarquard4@gmail.com"
+jenkins:
+  agentProtocols:
+  - "JNLP4-connect"
+  - "Ping"
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "admin"
+          password: "admin"
+        - id: "dev"
+          password: "dev"
+  authorizationStrategy:
+    globalMatrix:
+      permissions:
+        - "USER:Job/Build:dev"
+        - "USER:Job/Cancel:dev"
+        - "USER:Job/Read:dev"
+        - "USER:Job/Read:anonymous"
+        - "USER:Job/Workspace:dev"
+        - "USER:Overall/Administer:admin"
+        - "USER:Overall/Read:anonymous"
+        - "USER:Run/Replay:dev"
+        - "USER:Run/Update:dev"
+        # - "USER:Overall/Administer:anonymous" # for vpn whitelist access
+  crumbIssuer: "standard" 
+  disableRememberMe: true
+  labelAtoms:
+  - name: "agent_01"
+  - name: "built-in"
+  markupFormatter: "plainText"
+  mode: NORMAL
+  myViewsTabBar: "standard"
+  nodes:
+  - permanent:
+      labelString: "agent_01"
+      launcher:
+        ssh:
+          credentialsId: "5e42fb34-f7cd-454f-90ff-e6177df3e27f"
+          host: "${AGENT_IP}"
+          port: 4444
+          retryWaitTime: 5
+          sshHostKeyVerificationStrategy: "nonVerifyingKeyVerificationStrategy"
+      name: "agent_01"
+      remoteFS: "/home/jenkins"
+      retentionStrategy: "always"
+      numExecutors: 5 
+  numExecutors: 0
+  primaryView:
+    all:
+      name: "all"
+  projectNamingStrategy: "standard"
+  quietPeriod: 5
+  remotingSecurity:
+    enabled: true
+  scmCheckoutRetryCount: 0
+  slaveAgentPort: 50000
+  updateCenter:
+    sites:
+    - id: "default"
+      url: "https://updates.jenkins.io/update-center.json"
+  views:
+  - all:
+      name: "all"
+  viewsTabBar: "standard"
+globalCredentialsConfiguration:
+  configuration:
+    providerFilter: "none"
+    typeFilter: "none"
+security:
+  apiToken:
+    creationOfLegacyTokenEnabled: false
+    tokenGenerationOnCreationEnabled: false
+    usageStatisticsEnabled: true
+  gitHooks:
+    allowedOnAgents: false
+    allowedOnController: false
+  gitHostKeyVerificationConfiguration:
+    sshHostKeyVerificationStrategy: "knownHostsFileVerificationStrategy"
+  sSHD:
+    port: -1
+unclassified:
+  bitbucketEndpointConfiguration:
+    endpoints:
+    - bitbucketCloudEndpoint:
+        enableCache: false
+        manageHooks: false
+        repositoriesCacheDuration: 0
+        teamCacheDuration: 0
+  buildDiscarders:
+    configuredBuildDiscarders:
+    - "jobBuildDiscarder"
+  buildStepOperation:
+    enabled: false
+  email-ext:
+    adminRequiredForTemplateTesting: false
+    allowUnregisteredEnabled: false
+    charset: "UTF-8"
+    debugMode: false
+    defaultBody: |-
+      $PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS:
+
+      Check console output at $BUILD_URL to view the results.
+    defaultSubject: "$PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS!"
+    defaultTriggerIds:
+    - "hudson.plugins.emailext.plugins.trigger.FailureTrigger"
+    maxAttachmentSize: -1
+    maxAttachmentSizeMb: -1
+    precedenceBulk: false
+    watchingEnabled: false
+  enrichedSummaryConfig:
+    enrichedSummaryEnabled: false
+    httpClientDelayBetweenRetriesInSeconds: 1
+    httpClientMaxRetries: 3
+    httpClientTimeoutInSeconds: 1
+  fingerprints:
+    fingerprintCleanupDisabled: false
+    storage: "file"
+  gitHubConfiguration:
+    apiRateLimitChecker: ThrottleForNormalize
+  gitHubPluginConfig:
+    hookUrl: "http://${HOST_IP}:80/github-webhook/"
+  globalTimeOutConfiguration:
+    operations:
+    - "abortOperation"
+    overwriteable: false
+  injectionConfig:
+    allowUntrusted: false
+    enabled: false
+    injectCcudExtension: false
+    injectMavenExtension: false
+  junitTestResultStorage:
+    storage: "file"
+  location:
+    adminAddress: "address not configured yet <nobody@nowhere>"
+    url: "http://${HOST_IP}:80/"
+  mailer:
+    charset: "UTF-8"
+    useSsl: false
+    useTls: false
+  pollSCM:
+    pollingThreadCount: 10
+  scmGit:
+    addGitTagAction: false
+    allowSecondFetch: false
+    createAccountBasedOnEmail: false
+    disableGitToolChooser: false
+    hideCredentials: false
+    showEntireCommitSummaryInChanges: false
+    useExistingAccountWithSameEmail: false
+  timestamper:
+    allPipelines: false
+    elapsedTimeFormat: "'<b>'HH:mm:ss.S'</b> '"
+    systemTimeFormat: "'<b>'HH:mm:ss'</b> '"
+tool:
+  git:
+    installations:
+    - home: "git"
+      name: "Default"
+  mavenGlobalConfig:
+    globalSettingsProvider: "standard"
+    settingsProvider: "standard"
+jobs:
+  - script: |
+      multibranchPipelineJob('jenkins-test-pipeline') {
+        branchSources {
+          branchSource {
+            source {
+              github {
+                id = '7aa23199-eb0f-823f-8e31-a744dd38156e'
+                credentialsId('76eca70f-41e5-4f04-900c-8482a11f5a56')
+                repoOwner('dillonmarquard')
+                repository('jenkins-casc')
+                repositoryUrl('https://github.com/dillonmarquard/jenkins-casc.git')
+                configuredByUrl(true)
+                traits {
+                  gitHubBranchDiscovery {
+                    strategyId(0)
+                  }
+                }
+              }
+            }
+            buildStrategies {
+              buildAllBranches {
+                strategies {
+                  skipInitialBuildOnFirstBranchIndexing()
+                }
+              }
+            }
+          }     
+        } 
+      }
